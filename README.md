@@ -27,5 +27,14 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Deploy
 
-This app needs a **single long-running Node server** (in-memory live state + SSE).  
-Deploy with Render / Railway / Fly using `npm run build && npm start`, or connect the GitHub repo to a free Node host.
+**GitHub:** https://github.com/josh19ab/livevote
+
+This app needs a **single long-running Node server** (live voting state + SSE).
+
+### Free hosting (Render)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/josh19ab/livevote)
+
+Or: Render dashboard → New → Web Service → connect `josh19ab/livevote` → build `npm install && npm run build` → start `npm start`.
+
+> Avoid plain Vercel/Netlify serverless for live contests — in-memory votes and SSE need one persistent process.
