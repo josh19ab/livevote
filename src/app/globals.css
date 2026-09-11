@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+:root {
+  --canvas: #f3f0ea;
+  --ink: #1a1f1c;
+  --teal: #0f766e;
+  --coral: #e85d4c;
+  --sand: #ebe4d8;
+  --mist: #dfeae7;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-ink: var(--ink);
+  --color-teal-700: #0f766e;
+  --color-teal-800: #115e59;
+  --color-teal-50: #f0fdfa;
+  --color-coral: var(--coral);
+  --color-sand: var(--sand);
+  --color-mist: var(--mist);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-rise {
+  animation: rise 0.55s ease-out both;
+}
+
+.animate-pop {
+  animation: pop 0.45s ease-out both;
+}
+
+.animate-drift {
+  animation: drift 6s ease-in-out infinite;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+::selection {
+  background: #99f6e4;
+  color: #134e4a;
+}
