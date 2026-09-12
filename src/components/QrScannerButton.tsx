@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Camera, X } from "lucide-react";
 
 function extractCode(decoded: string): string | null {
+  const text = decoded.trim();
   try {
-    const url = new URL(decoded);
+    const url = new URL(text);
     const fromPath = url.pathname.match(/\/p\/([A-Za-z0-9]+)/i);
     if (fromPath) return fromPath[1].toUpperCase();
     const q = url.searchParams.get("code");
@@ -14,73 +15,135 @@ function extractCode(decoded: string): string | null {
   } catch {
     /* not a URL */
   }
-  const bare = decoded.trim().toUpperCase();
+  const bare = text.toUpperCase().replace(/[^A-Z0-9]/g, "");
   if (/^[A-Z0-9]{4,8}$/.test(bare)) return bare;
   return null;
 }
 
-export function QrScannerButton() {
+export function QrScannerButton({ variant = "light" }: { variant?: "light" | "dark" }) {
   const router = useRouter();
+  const reactId = useId().replace(/:/g, "");
+  const regionId = `livevote-qr-reader-${reactId}`;
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
-  const regionId = "livevote-qr-reader";
-  const scannerRef = useRef<{ stop: () => Promise<void> } | null>(null);
+  const [starting, setStarting] = useState(false);
+  const scannerRef = useRef<{
+    stop: () => Promise<void>;
+    clear?: () => void;
+  } | null>(null);
+  const handledRef = useRef(false);
 
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
+    handledRef.current = false;
 
-    async function start() {
+    const timer = window.setTimeout(async () => {
+      setStarting(true);
       setError("");
       try {
+        if (!window.isSecureContext && location.hostname !== "localhost") {
+          throw new Error("Camera needs HTTPS. Open this site over https or use the code.");
+        }
+
         const { Html5Qrcode } = await import("html5-qrcode");
         if (cancelled) return;
-        const scanner = new Html5Qrcode(regionId);
-        scannerRef.current = scanner;
-        await scanner.start(
-          { facingMode: "environment" },
-          { fps: 8, qrbox: { width: 240, height: 240 } },
-          (decoded) => {
-            const code = extractCode(decoded);
-            if (!code) return;
-            scanner.stop().catch(() => undefined);
-            scannerRef.current = null;
-            setOpen(false);
-            router.push(`/p/${code}`);
-          },
-          () => undefined,
-        );
-      } catch {
-        setError("Camera access denied or unavailable. Enter the contest code instead.");
-      }
-    }
 
-    start();
+        const el = document.getElementById(regionId);
+        if (!el) throw new Error("Scanner UI not ready");
+
+        el.innerHTML = "";
+        const scanner = new Html5Qrcode(regionId, { verbose: false });
+        scannerRef.current = scanner;
+
+        const onSuccess = async (decoded: string) => {
+          if (handledRef.current || cancelled) return;
+          const code = extractCode(decoded);
+          if (!code) return;
+          handledRef.current = true;
+          try {
+            await scanner.stop();
+            scanner.clear?.();
+          } catch {
+            /* ignore */
+          }
+          scannerRef.current = null;
+          setOpen(false);
+          router.push(`/p/${code}`);
+        };
+
+        const config = {
+          fps: 12,
+          qrbox: { width: 240, height: 240 },
+          aspectRatio: 1,
+          disableFlip: false,
+        };
+
+        const cameras = await Html5Qrcode.getCameras().catch(() => []);
+        if (cancelled) return;
+
+        if (cameras.length > 0) {
+          const back =
+            cameras.find((c) => /back|rear|environment|world/i.test(c.label)) ??
+            cameras[cameras.length - 1];
+          try {
+            await scanner.start(back.id, config, onSuccess, () => undefined);
+          } catch {
+            await scanner.start(cameras[0].id, config, onSuccess, () => undefined);
+          }
+        } else {
+          try {
+            await scanner.start({ facingMode: "environment" }, config, onSuccess, () => undefined);
+          } catch {
+            await scanner.start({ facingMode: "user" }, config, onSuccess, () => undefined);
+          }
+        }
+      } catch (err) {
+        if (cancelled) return;
+        const message =
+          err instanceof Error ? err.message : "Camera unavailable";
+        setError(
+          message.includes("HTTPS")
+            ? message
+            : "Could not open the camera. Allow camera permission, use HTTPS (or localhost), or enter the code instead.",
+        );
+      } finally {
+        if (!cancelled) setStarting(false);
+      }
+    }, 150);
 
     return () => {
       cancelled = true;
+      window.clearTimeout(timer);
       const scanner = scannerRef.current;
       scannerRef.current = null;
-      scanner?.stop().catch(() => undefined);
+      scanner
+        ?.stop()
+        .then(() => scanner.clear?.())
+        .catch(() => undefined);
     };
-  }, [open, router]);
+  }, [open, regionId, router]);
 
   return (
     <>
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-ink/15 bg-white/80 px-5 py-3.5 font-semibold text-ink transition hover:bg-white"
+        className={
+          variant === "dark"
+            ? "mm-btn inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-white/30 bg-white/10 px-5 py-3.5 font-semibold text-white backdrop-blur transition hover:bg-white/20"
+            : "mm-btn inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-ink/10 bg-canvas px-5 py-3.5 font-semibold text-ink transition hover:bg-mist"
+        }
       >
         <Camera className="h-4 w-4" />
-        Scan QR to join
+        Scan QR code
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/60 p-4 sm:items-center">
-          <div className="w-full max-w-md rounded-[2rem] bg-white p-5 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-4 backdrop-blur-sm sm:items-center">
+          <div className="animate-pop w-full max-w-md rounded-[1.75rem] bg-white p-5 shadow-2xl">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-display text-xl font-semibold">Scan contest QR</h2>
+              <h2 className="font-display text-xl font-bold text-ink">Scan QR</h2>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
@@ -90,9 +153,15 @@ export function QrScannerButton() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div id={regionId} className="overflow-hidden rounded-2xl bg-ink/5" />
+            <div
+              id={regionId}
+              className="min-h-[260px] overflow-hidden rounded-2xl bg-ink/5"
+            />
+            {starting && !error && (
+              <p className="mt-3 text-sm text-muted">Starting camera…</p>
+            )}
             {error && <p className="mt-3 text-sm text-coral">{error}</p>}
-            <p className="mt-3 text-sm text-ink/50">
+            <p className="mt-3 text-sm text-muted">
               Point your camera at the QR on the presenter’s screen.
             </p>
           </div>

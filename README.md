@@ -1,20 +1,35 @@
 # LiveVote
 
-Interactive contest / Mentimeter-style voting with **no participant caps**.
+Mentimeter-style live contests with **no participant caps**.
+
+## Two links (important)
+
+| Who | Open this |
+| --- | --- |
+| **Audience** | `/` (home) — code or QR only. No dashboard. |
+| **Host** | `/host` — create contests, edit slides, **Present → Go live** |
+
+Never share `/host` with the audience. Share only your public URL (home page).
 
 ## Audience flow
 
-1. Share the hosted home page link with your audience.
-2. They enter the **contest code** or **scan the QR** on the present screen.
-3. Host clicks **Go live · open voting (3 min)** — voting opens immediately and **auto-closes after 3 minutes**.
-4. For large lists (100+ names), voters use the **search bar** to find who to vote for.
+1. Open the public link
+2. Enter the contest code **or** tap **Scan QR code**
+3. Wait until the host goes live, then vote (3‑minute window)
 
-## Host features
+## Host flow
 
-- Create contests and slides in the editor
-- **Import voting options from Excel** (`.xlsx` / `.xls` / `.csv`) — first column or a `Name` / `Option` / `Nominee` header
-- Present mode with QR + live results
-- Demo contest code: **DEMO01**
+1. Open `/host`
+2. Create / edit contest (Excel import for names)
+3. Click **Present / Go live**
+4. Show the QR + code on the big screen
+5. Click **Go live · open voting (3 min)**
+
+## Should the local server stay on?
+
+**Yes, if you’re only running locally** (`npm run dev` + optional Cloudflare tunnel): the contest dies when your PC sleeps or the terminal stops.
+
+For a real event, deploy once to a free always-on host (Render) from GitHub, then you don’t need the local server.
 
 ## Run locally
 
@@ -23,18 +38,11 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+- Audience: http://localhost:3000  
+- Host: http://localhost:3000/host  
 
 ## Deploy
 
-**GitHub:** https://github.com/josh19ab/livevote
+**GitHub:** https://github.com/josh19ab/livevote  
 
-This app needs a **single long-running Node server** (live voting state + SSE).
-
-### Free hosting (Render)
-
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/josh19ab/livevote)
-
-Or: Render dashboard → New → Web Service → connect `josh19ab/livevote` → build `npm install && npm run build` → start `npm start`.
-
-> Avoid plain Vercel/Netlify serverless for live contests — in-memory votes and SSE need one persistent process.
+[Deploy to Render](https://render.com/deploy?repo=https://github.com/josh19ab/livevote)

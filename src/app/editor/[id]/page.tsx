@@ -28,7 +28,7 @@ export default function EditorPage() {
   const load = useCallback(async () => {
     const res = await fetch(`/api/presentations/${params.id}`);
     if (!res.ok) {
-      router.push("/dashboard");
+      router.push("/host");
       return;
     }
     const data = await res.json();
@@ -125,7 +125,7 @@ export default function EditorPage() {
       <header className="flex items-center justify-between gap-4 border-b border-ink/5 bg-white/80 px-4 py-3 backdrop-blur sm:px-6">
         <div className="flex min-w-0 flex-1 items-center gap-3">
           <Link
-            href="/dashboard"
+            href="/host"
             className="rounded-full p-2 text-ink/50 hover:bg-ink/5"
             aria-label="Back"
           >

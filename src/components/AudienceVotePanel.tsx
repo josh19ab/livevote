@@ -31,22 +31,26 @@ export function AudienceVotePanel({
 
   if (presentation.status === "ended") {
     return (
-      <div className="rounded-3xl bg-white p-8 text-center shadow-sm ring-1 ring-ink/5">
-        <p className="font-display text-2xl">Session ended</p>
-        <p className="mt-2 text-ink/50">Thanks for participating!</p>
+      <div className="animate-pop rounded-3xl bg-white p-8 text-center text-ink shadow-xl">
+        <p className="font-display text-2xl font-bold">Contest ended</p>
+        <p className="mt-2 text-muted">Thanks for voting!</p>
       </div>
     );
   }
 
   if (presentation.status !== "live") {
     return (
-      <div className="rounded-3xl bg-white p-8 text-center shadow-sm ring-1 ring-ink/5">
-        <p className="font-display text-2xl">Waiting for host…</p>
-        <p className="mt-2 text-ink/50">
-          Contest code{" "}
-          <span className="font-semibold text-teal-700">{presentation.code}</span>
+      <div className="animate-pop rounded-3xl bg-white p-8 text-center text-ink shadow-xl">
+        <div className="relative mx-auto mb-4 h-14 w-14">
+          <span className="animate-pulse-ring absolute inset-0 rounded-full bg-teal-700/30" />
+          <span className="absolute inset-2 rounded-full bg-teal-700/20" />
+        </div>
+        <p className="font-display text-2xl font-bold">Waiting for host…</p>
+        <p className="mt-2 text-muted">
+          Code{" "}
+          <span className="font-bold text-teal-700">{presentation.code}</span>
         </p>
-        <p className="mt-4 text-sm text-ink/40">
+        <p className="mt-4 text-sm text-muted">
           {presentation.participants.length} joined — voting opens when the host goes live.
         </p>
       </div>
@@ -55,19 +59,19 @@ export function AudienceVotePanel({
 
   if (!presentation.votingOpen && slide.type !== "qa") {
     return (
-      <div className="rounded-3xl bg-white p-8 text-center shadow-sm ring-1 ring-ink/5">
-        <p className="font-display text-2xl">Voting is closed</p>
-        <p className="mt-2 text-ink/50">
-          The 3‑minute voting window has ended. Results are on the presenter screen.
+      <div className="animate-pop rounded-3xl bg-white p-8 text-center text-ink shadow-xl">
+        <p className="font-display text-2xl font-bold">Voting closed</p>
+        <p className="mt-2 text-muted">
+          The 3‑minute window ended. Results are on the presenter’s screen.
         </p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-ink/5 sm:p-8">
+    <div className="animate-pop rounded-3xl bg-white p-6 text-ink shadow-xl sm:p-8">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-teal-700">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-teal-700">
           {slide.type.replace("_", " ")}
         </p>
         <VotingTimerBadge
@@ -75,7 +79,7 @@ export function AudienceVotePanel({
           votingOpen={presentation.votingOpen}
         />
       </div>
-      <h1 className="font-display mt-2 text-2xl font-semibold leading-tight text-ink sm:text-3xl">
+      <h1 className="font-display mt-2 text-2xl font-bold leading-tight sm:text-3xl">
         {slide.title}
       </h1>
       <div className="mt-6">
@@ -209,10 +213,10 @@ function ChoiceVote({
                 type="button"
                 disabled={busy}
                 onClick={() => choose(index)}
-                className={`flex items-center justify-between rounded-2xl border-2 px-4 py-3.5 text-left text-base font-medium transition sm:text-lg ${
+                className={`mm-btn flex items-center justify-between rounded-2xl border-2 px-4 py-3.5 text-left text-base font-semibold transition sm:text-lg ${
                   active
-                    ? "border-teal-600 bg-teal-50 text-teal-900"
-                    : "border-ink/10 bg-canvas hover:border-teal-600/40"
+                    ? "border-teal-700 bg-teal-50 text-teal-800"
+                    : "border-ink/10 bg-canvas hover:border-teal-700/40"
                 }`}
               >
                 <span className="flex min-w-0 items-center gap-3">

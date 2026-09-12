@@ -76,24 +76,24 @@ export default function PresentPage() {
   const meta = SLIDE_TYPE_META[slide.type];
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#10221f] text-white">
+    <div className="flex min-h-screen flex-col bg-[#1a0533] text-white">
       <div
-        className="pointer-events-none absolute inset-0 opacity-80"
+        className="pointer-events-none absolute inset-0 opacity-90"
         style={{
           background:
-            "radial-gradient(ellipse 70% 50% at 20% 0%, #134e4a 0%, transparent 55%), radial-gradient(ellipse 50% 40% at 100% 100%, #7c2d12 0%, transparent 45%)",
+            "radial-gradient(ellipse 70% 50% at 20% 0%, #ff6bcb44 0%, transparent 55%), radial-gradient(ellipse 50% 40% at 100% 100%, #7c5cff55 0%, transparent 45%)",
         }}
       />
 
       <header className="relative z-10 flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <div className="flex items-center gap-3">
-          <Link href={`/editor/${presentation.id}`} className="font-display text-lg font-bold">
+          <Link href={`/editor/${presentation.id}`} className="font-display text-lg font-extrabold">
             LiveVote
           </Link>
           <span
-            className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${
+            className={`rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${
               presentation.status === "live"
-                ? "bg-teal-500/20 text-teal-200"
+                ? "bg-mm-accent/25 text-mm-accent"
                 : "bg-white/10 text-white/60"
             }`}
           >
@@ -113,7 +113,7 @@ export default function PresentPage() {
             <button
               type="button"
               onClick={() => control("start")}
-              className="rounded-full bg-teal-500 px-4 py-2 text-sm font-semibold text-ink hover:bg-teal-400"
+              className="mm-btn rounded-full bg-mm-accent px-4 py-2 text-sm font-bold text-ink hover:brightness-110"
             >
               Go live · open voting (3 min)
             </button>

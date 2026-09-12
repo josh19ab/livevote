@@ -37,59 +37,53 @@ export default function AudiencePage() {
   }
 
   return (
-    <div className="min-h-screen bg-canvas">
+    <div className="mm-gradient relative min-h-screen overflow-hidden text-white">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-64"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 100% at 50% 0%, #c5ebe3 0%, transparent 70%)",
-        }}
+        className="animate-floaty pointer-events-none absolute -right-10 top-20 h-40 w-40 rounded-full bg-mm-accent/25 blur-3xl"
       />
       <header className="relative z-10 mx-auto flex max-w-lg items-center justify-between px-4 py-5">
-        <Link href="/" className="font-display text-lg font-bold">
+        <Link href="/" className="font-display text-lg font-extrabold">
           LiveVote
         </Link>
-        <div className="text-right text-xs text-ink/45">
-          <p className="font-semibold tracking-wider text-teal-700">{code}</p>
+        <div className="text-right text-xs text-white/60">
+          <p className="font-bold tracking-wider text-white">{code}</p>
           <p>{connected ? "Connected" : "Reconnecting…"}</p>
         </div>
       </header>
 
       <main className="relative z-10 mx-auto max-w-lg px-4 pb-16">
         {error ? (
-          <div className="rounded-3xl bg-white p-8 text-center shadow-sm ring-1 ring-ink/5">
-            <p className="font-display text-2xl">Session not found</p>
-            <Link href="/join" className="mt-4 inline-block text-teal-700 underline">
+          <div className="animate-pop rounded-3xl bg-white p-8 text-center text-ink shadow-xl">
+            <p className="font-display text-2xl font-bold">Contest not found</p>
+            <Link href="/" className="mt-4 inline-block font-semibold text-teal-700 underline">
               Try another code
             </Link>
           </div>
         ) : !presentation || !voterId ? (
-          <p className="text-center text-ink/40">Connecting…</p>
+          <p className="text-center text-white/50">Connecting…</p>
         ) : (
-          <>
-            <label className="mb-3 block text-xs font-semibold uppercase tracking-[0.14em] text-ink/40">
-              Display name
+          <div className="animate-rise">
+            <label className="mb-2 block text-xs font-bold uppercase tracking-[0.14em] text-white/55">
+              Your name
             </label>
             <input
               value={name}
               onChange={(e) => saveName(e.target.value)}
               maxLength={40}
-              className="mb-5 w-full rounded-2xl border border-ink/10 bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-teal-600/25"
+              className="mb-5 w-full rounded-2xl border-0 bg-white/95 px-4 py-3 text-sm text-ink outline-none ring-2 ring-transparent focus:ring-mm-accent"
             />
             <AudienceVotePanel
               presentation={presentation}
               voterId={voterId}
               displayName={name}
             />
-            {presentation.showResults &&
-              presentation.status === "live" &&
-              presentation.slides[presentation.currentSlideIndex]?.type !== "qa" && (
-                <p className="mt-4 text-center text-sm text-ink/40">
-                  Results update live on the presenter screen.
-                </p>
-              )}
-          </>
+            {presentation.status === "live" && (
+              <p className="mt-4 text-center text-sm text-white/45">
+                Results appear on the presenter’s screen.
+              </p>
+            )}
+          </div>
         )}
       </main>
     </div>
