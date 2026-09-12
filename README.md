@@ -2,20 +2,25 @@
 
 Mentimeter-style live contests with **no participant caps**.
 
+## Live URL (no laptop needed)
+
+**https://livevote-production.up.railway.app**
+
+| Who | Open |
+| --- | --- |
+| **Audience** | https://livevote-production.up.railway.app |
+| **Host** | https://livevote-production.up.railway.app/host |
+
+You do **not** need to run `npm run dev` on your laptop for contests.
+
 ## Two links (important)
 
 | Who | Open this |
 | --- | --- |
-| **Audience** | `/` (home) — code or QR only. No dashboard. |
-| **Host** | `/host` — create contests, edit slides, **Present → Go live** |
+| **Audience** | `/` — code or QR only |
+| **Host** | `/host` — create contests, edit, **Present → Go live** |
 
-Never share `/host` with the audience. Share only your public URL (home page).
-
-## Audience flow
-
-1. Open the public link
-2. Enter the contest code **or** tap **Scan QR code**
-3. Wait until the host goes live, then vote (3‑minute window)
+Never share `/host` with the audience.
 
 ## Host flow
 
@@ -25,13 +30,17 @@ Never share `/host` with the audience. Share only your public URL (home page).
 4. Show the QR + code on the big screen
 5. Click **Go live · open voting (3 min)**
 
-## Should the local server stay on?
+## Deploy (Railway)
 
-**Yes, if you’re only running locally** (`npm run dev` + optional Cloudflare tunnel): the contest dies when your PC sleeps or the terminal stops.
+Already deployed to Railway. To redeploy after code changes:
 
-For a real event, deploy once to a free always-on host (Render) from GitHub, then you don’t need the local server.
+```bash
+railway up --service livevote
+```
 
-## Run locally
+**GitHub:** https://github.com/josh19ab/livevote
+
+## Run locally (optional)
 
 ```bash
 npm install
@@ -40,9 +49,3 @@ npm run dev
 
 - Audience: http://localhost:3000  
 - Host: http://localhost:3000/host  
-
-## Deploy
-
-**GitHub:** https://github.com/josh19ab/livevote  
-
-[Deploy to Render](https://render.com/deploy?repo=https://github.com/josh19ab/livevote)

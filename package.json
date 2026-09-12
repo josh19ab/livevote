@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "build": "npm run build:next && npm run build:standalone-assets",
+    "build:next": "next build",
+    "build:standalone-assets": "node scripts/copy-standalone-assets.js",
+    "start": "node scripts/start.js",
     "lint": "eslint"
   },
   "dependencies": {
