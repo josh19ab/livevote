@@ -32,7 +32,7 @@ export function MultipleChoiceChart({
   }, [slide.options, counts, query]);
 
   return (
-    <div className="flex w-full flex-col gap-4">
+    <div className="flex w-full min-w-0 flex-col gap-4">
       {slide.options.length > 8 && (
         <input
           value={query}
@@ -47,22 +47,29 @@ export function MultipleChoiceChart({
           const width = `${(row.count / max) * 100}%`;
           const isCorrect = revealCorrect && slide.correctIndex === row.i;
           return (
-            <div key={`${row.option}-${row.i}`} className="flex flex-col gap-1.5">
-              <div className="flex items-baseline justify-between gap-3">
-                <span className={`text-lg font-medium ${isCorrect ? "text-teal-700" : "text-ink"}`}>
+            <div key={`${row.option}-${row.i}`} className="flex min-w-0 flex-col gap-1.5">
+              <div className="flex min-w-0 items-baseline justify-between gap-3">
+                <span
+                  className={`min-w-0 flex-1 break-words text-base font-medium sm:text-lg ${
+                    isCorrect ? "text-teal-700" : "text-ink"
+                  }`}
+                >
                   {row.option}
                   {isCorrect ? " ✓" : ""}
                 </span>
-                <span className="font-display text-xl tabular-nums text-ink/70">
-                  {row.count} <span className="text-sm text-ink/40">({pct}%)</span>
+                <span className="font-display shrink-0 text-lg tabular-nums text-ink/70 sm:text-xl">
+                  {row.count}{" "}
+                  <span className="text-sm text-ink/40">({pct}%)</span>
                 </span>
               </div>
               <div className="h-3 overflow-hidden rounded-full bg-ink/8">
                 <div
-                  className="h-full rounded-full transition-all duration-700 ease-out"
+                  className="h-full origin-left rounded-full transition-all duration-700 ease-out"
                   style={{
                     width: row.count ? width : "0%",
-                    background: isCorrect ? "#0D9488" : CHART_COLORS[row.i % CHART_COLORS.length],
+                    background: isCorrect
+                      ? "#0D9488"
+                      : CHART_COLORS[row.i % CHART_COLORS.length],
                   }}
                 />
               </div>
@@ -72,7 +79,9 @@ export function MultipleChoiceChart({
       </div>
       <p className="text-sm text-ink/45">
         {slide.votes.length} responses · {slide.options.length} options
-        {!query && rows.length > 40 ? " · showing top 40 (search to find others)" : ""}
+        {!query && rows.length > 40
+          ? " · showing top 40 (search to find others)"
+          : ""}
       </p>
     </div>
   );

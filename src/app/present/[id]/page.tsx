@@ -10,10 +10,11 @@ import {
   EyeOff,
   Lock,
   LockOpen,
-  Square,
+  QrCode,
   RotateCcw,
+  Square,
 } from "lucide-react";
-import { JoinPanel } from "@/components/JoinPanel";
+import { JoinPanel, JoinScreenModal } from "@/components/JoinPanel";
 import { SlideResults } from "@/components/SlideResults";
 import { VotingTimerBadge } from "@/components/VotingTimer";
 import { usePresentationStream } from "@/lib/use-presentation-stream";
@@ -23,6 +24,7 @@ export default function PresentPage() {
   const params = useParams<{ id: string }>();
   const [code, setCode] = useState<string | null>(null);
   const [origin, setOrigin] = useState("");
+  const [showJoin, setShowJoin] = useState(false);
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -51,6 +53,10 @@ export default function PresentPage() {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      if (showJoin) {
+        if (e.key === "Escape") setShowJoin(false);
+        return;
+      }
       if (e.key === "ArrowRight" || e.key === " ") {
         e.preventDefault();
         control("navigate", { direction: "next" });
@@ -59,14 +65,18 @@ export default function PresentPage() {
         e.preventDefault();
         control("navigate", { direction: "prev" });
       }
+      if (e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        setShowJoin(true);
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [control]);
+  }, [control, showJoin]);
 
   if (!presentation) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-ink text-white/50">
+      <div className="flex min-h-screen items-center justify-center bg-[#1a0533] text-white/50">
         Starting presentation…
       </div>
     );
@@ -76,7 +86,7 @@ export default function PresentPage() {
   const meta = SLIDE_TYPE_META[slide.type];
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#1a0533] text-white">
+    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-[#1a0533] text-white">
       <div
         className="pointer-events-none absolute inset-0 opacity-90"
         style={{
@@ -85,9 +95,12 @@ export default function PresentPage() {
         }}
       />
 
-      <header className="relative z-10 flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
-        <div className="flex items-center gap-3">
-          <Link href={`/editor/${presentation.id}`} className="font-display text-lg font-extrabold">
+      <header className="relative z-10 flex shrink-0 flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
+          <Link
+            href={`/editor/${presentation.id}`}
+            className="font-display shrink-0 text-lg font-extrabold"
+          >
             LiveVote
           </Link>
           <span
@@ -109,6 +122,14 @@ export default function PresentPage() {
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowJoin(true)}
+            className="mm-btn inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-sm font-bold text-ink hover:bg-white/90"
+          >
+            <QrCode className="h-4 w-4" />
+            Show join QR
+          </button>
           {presentation.status !== "live" ? (
             <button
               type="button"
@@ -175,25 +196,26 @@ export default function PresentPage() {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto grid w-full max-w-7xl flex-1 gap-6 px-4 py-4 lg:grid-cols-[1fr_280px] lg:px-6">
-        <div className="flex flex-col rounded-[2rem] bg-white text-ink shadow-2xl shadow-black/30">
-          <div className="flex items-center justify-between border-b border-ink/5 px-6 py-4 sm:px-10">
+      <main className="relative z-10 mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 gap-4 px-4 py-4 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-6 lg:px-6">
+        <div className="flex min-h-0 min-w-0 flex-col overflow-hidden rounded-[1.75rem] bg-white text-ink shadow-2xl shadow-black/30">
+          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-ink/5 px-5 py-3 sm:px-8">
             <span
-              className="rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em]"
+              className="rounded-full px-3 py-1 text-xs font-bold uppercase tracking-[0.14em]"
               style={{ background: `${meta.color}22`, color: meta.color }}
             >
               {meta.label} · {presentation.currentSlideIndex + 1}/
               {presentation.slides.length}
             </span>
-            <span className="text-sm text-ink/40">
+            <span className="shrink-0 text-sm text-ink/40">
               {slide.votes.length + slide.questions.length} responses
             </span>
           </div>
-          <div className="flex flex-1 flex-col px-6 py-8 sm:px-10">
-            <h1 className="font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+
+          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-5 py-6 sm:px-8 sm:py-8">
+            <h1 className="font-display break-words text-2xl font-bold leading-tight tracking-tight sm:text-3xl lg:text-4xl">
               {slide.title}
             </h1>
-            <div className="mt-10 flex-1">
+            <div className="mt-8 min-w-0 flex-1">
               {presentation.showResults ? (
                 <SlideResults
                   slide={slide}
@@ -210,13 +232,21 @@ export default function PresentPage() {
                   }}
                 />
               ) : (
-                <div className="flex min-h-[240px] items-center justify-center text-ink/35">
-                  Results hidden — audience is voting
+                <div className="flex min-h-[240px] flex-col items-center justify-center gap-4 text-ink/35">
+                  <p>Results hidden — audience is voting</p>
+                  <button
+                    type="button"
+                    onClick={() => setShowJoin(true)}
+                    className="mm-btn rounded-full bg-teal-700 px-5 py-2.5 text-sm font-bold text-white"
+                  >
+                    Show join QR
+                  </button>
                 </div>
               )}
             </div>
           </div>
-          <div className="flex items-center justify-between border-t border-ink/5 px-4 py-3 sm:px-6">
+
+          <div className="flex shrink-0 items-center justify-between border-t border-ink/5 px-4 py-3 sm:px-6">
             <button
               type="button"
               onClick={() => control("navigate", { direction: "prev" })}
@@ -255,22 +285,34 @@ export default function PresentPage() {
           </div>
         </div>
 
-        <aside className="flex flex-col gap-4">
+        <aside className="flex min-w-0 flex-col gap-4">
           <JoinPanel
             code={presentation.code}
             joinUrl={joinUrl}
             participants={presentation.participants.length}
+            onExpand={() => setShowJoin(true)}
           />
           <div className="rounded-2xl bg-white/10 p-4 text-sm text-white/70 ring-1 ring-white/10">
             <p className="font-semibold text-white">Presenter tips</p>
             <ul className="mt-2 list-disc space-y-1 pl-4">
-              <li>Arrow keys or space to advance</li>
+              <li>
+                Press <kbd className="rounded bg-white/10 px-1">J</kbd> or{" "}
+                <strong>Show join QR</strong> for a full-screen join card
+              </li>
+              <li>Arrow keys or space to advance slides</li>
               <li>Hide results until you&apos;re ready</li>
-              <li>Lock voting before revealing quiz answers</li>
             </ul>
           </div>
         </aside>
       </main>
+
+      <JoinScreenModal
+        open={showJoin}
+        onClose={() => setShowJoin(false)}
+        code={presentation.code}
+        joinUrl={joinUrl}
+        participants={presentation.participants.length}
+      />
     </div>
   );
 }
